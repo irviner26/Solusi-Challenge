@@ -1,9 +1,9 @@
-package org.example;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 public class SolusiChallenge1 {
@@ -83,7 +83,7 @@ public class SolusiChallenge1 {
         // Setelah user keluar dari loop (bayar atau exit), kode block ini akan dijalankan
         // JIKA user memilih konfirmasi dan bayar (user input 1)
         if (konfirmasi == 1) {
-            // User memilih lokasi file struk akan disimpan
+            // User memilih lokasi file struk akan disimpan (tanpa nama file)
             scanner.nextLine();
             System.out.println("Masukkan lokasi simpan struk: ");
             String lokasiFile = scanner.nextLine();
@@ -197,8 +197,11 @@ public class SolusiChallenge1 {
     static void strukPembayaran(String txtFile, String[] menu, int[] QTY, int[] Total) {
         int finalQTY = 0;
         int finalTotal = 0;
+        // Gunakan class Date dan DateFormat untuk nama file yang unik
+        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyHHmmss");
+        String tanggalPembelian = sdf.format(new Date());
         try {
-            File file = new File(txtFile);
+            File file = new File(txtFile+"\\Struk"+tanggalPembelian+".txt");
             if (file.createNewFile()) {
                 System.out.println("File sudah dibuat!");
             }
