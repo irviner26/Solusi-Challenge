@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class SolusiChallenge1 {
@@ -50,7 +51,20 @@ public class SolusiChallenge1 {
             // Aplikasi akan menapilkan menu utama.
             printMenu(menuMakanan, hargaMakanan);
             // Aplikasi meminta input dari user (input angka 1-5,99, atau 0)
-            pilihanMenu = scanner.nextInt();
+
+            try {
+                pilihanMenu = scanner.nextInt();
+            } catch (InputMismatchException ime) {
+                System.out.println("Pilih yang bener!");
+                scanner.nextLine();
+                pilihanMenu = -1;
+            } catch (NullPointerException npe) {
+                System.out.println("Pilih yang bener!");
+                scanner.nextLine();
+                pilihanMenu = -1;
+            }
+
+            // pilihanMenu = scanner.nextInt();
             // JIKA input dari user adalah 1-5 maka block ini akan dijalankan
             if (pilihanMenu <= menuMakanan.length && pilihanMenu > 0) {
                 // Aplikasi menampilkan menu konfirmasi jumlah makanan yang akan dipesan
@@ -64,7 +78,8 @@ public class SolusiChallenge1 {
                 // Block ini akan dijalankan terus menerus jika user tidak menginput 99 ATAU 0.
             }
             // Berikut ini block untuk menu konfirmasi
-            // pilihan konfirmasi didefaultkan menjadi 3 karena user akan diberi pilihan 0 - 2
+            // pilihan konfirmasi didefaultkan
+            // menjadi 3 karena user akan diberi pilihan 0 - 2
             // untuk konfirmasi terakhir. Hal ini juga bertujuan untuk menjaga loopnya tidak exit
             // ketika user memilih makanan
             konfirmasi = 3;
@@ -73,12 +88,22 @@ public class SolusiChallenge1 {
                 // Aplikasi menampilkan menu konfirmasi
                 printKonfirmasi2(menuMakanan, updateQTY, updateTotal);
                 // User input untuk menu konfirmasi.
-                konfirmasi = scanner.nextInt();
+                try {
+                    konfirmasi = scanner.nextInt();
+                } catch (InputMismatchException ime) {
+                    System.out.println("Pilih yang bener!");
+                    scanner.nextLine();
+                    konfirmasi = -1;
+                } catch (NullPointerException npe) {
+                    System.out.println("Pilih yang bener!");
+                    scanner.nextLine();
+                    konfirmasi = -1;
+                }
                 // bergantung konfirmasinya, loop akan exit atau lanjut
                 // untuk user input 2 maka akan ter-loop kembali ke menu utama
                 // untuk user input 0 ATAU 1 maka loop akan exit
             }
-        } while ((konfirmasi != 0 && konfirmasi !=1) && pilihanMenu != 0 );
+        } while ((konfirmasi != 0 && konfirmasi !=1) && pilihanMenu != 0);
 
         // Setelah user keluar dari loop (bayar atau exit), kode block ini akan dijalankan
         // JIKA user memilih konfirmasi dan bayar (user input 1)
