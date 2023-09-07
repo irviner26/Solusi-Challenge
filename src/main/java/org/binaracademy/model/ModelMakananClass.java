@@ -1,16 +1,19 @@
 package org.binaracademy.model;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
-@Getter
-@Setter
 @NoArgsConstructor
+@Getter
 public class ModelMakananClass {
     // Kelas untuk makanan (atau minuman)
-
-    private String[] namaMakanan;
-    private int[] hargaMakanan;
-
+    private List<String> namaMakanan = new ArrayList<>();
+    private List<Integer> hargaMakanan = new ArrayList<>();
+    public void addNamaMakanan(String insertNamaMakanan) {
+        namaMakanan.add(insertNamaMakanan);
+    }
+    public void addHargaMakanan(Integer insertHargaMakanan) {
+        hargaMakanan.add(insertHargaMakanan);
+    }
 }
