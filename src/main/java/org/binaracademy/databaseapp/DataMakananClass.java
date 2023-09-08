@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class DataMakananClass {
-    private final String[] dataMakanan = {"a","b","c","d","e","asdfasdfasdfas"};
-    private final int[] hargaMakanan = {1,2,3,4,5,100};
+    public final String[] dataMakanan = {"Nasi Goreng","Mie Goreng","Nasi Ayam","Es Teh Manis","Es Jeruk"};
+    public final Integer[] hargaMakanan = {15000,13000,18000,3000,5000};
 }
