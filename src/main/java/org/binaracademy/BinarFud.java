@@ -12,6 +12,7 @@ public class BinarFud {
         ServicePage1I servicePage1 = new ServicePage1();
         ServicePage2I servicePage2 = new ServicePage2();
         ServiceCartI serviceCart = new ServiceCart();
+        RepoCart repoCart = new RepoCart();
         // Input berikut ini merupakan input pilihan makanan/minuman dari user
         ModelUserInput modelUI1 = new ModelUserInput();
         ControlUI cuip1 = new ControlUI();
@@ -46,8 +47,7 @@ public class BinarFud {
             Scanner scanner = new Scanner(System.in);
             System.out.println("Masukkan lokasi simpan struk: ");
             String lokasiFile = scanner.nextLine();
-            RepoCart repoCart = new RepoCart();
-            repoCart.struk(serviceCart.listCart(), lokasiFile);
+            repoCart.struk(serviceCart.listCart(), lokasiFile, (ServiceCart) serviceCart);
         }
     }
 }

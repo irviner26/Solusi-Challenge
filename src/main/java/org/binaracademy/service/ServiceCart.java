@@ -14,13 +14,16 @@ public class ServiceCart extends ServiceAdditional implements ServiceCartI {
     public ServiceCart() {
         super();
     }
-
+    // Inisialisasi list kuantitas dengan nilai null
     public List<Integer> qty = Arrays.asList(null,null,null,null,null);
+
+    // Method untuk isi list kuantitas di atas
     @Override
     public void isiQTY(Integer input1,Integer input2) {
         this.qty.set(input1-1, input2);
     }
 
+    // Membuat list dengan objek model dari cart
     @Override
     public List<ModelCart> listCart() {
         RepoPage1 repoPage1 = new RepoPage1();
@@ -34,6 +37,7 @@ public class ServiceCart extends ServiceAdditional implements ServiceCartI {
                 .collect(Collectors.toList());
     }
 
+    // Menampilkan cart pembeli
     @Override
     public void tampilCart(List<ModelCart> cart) {
         StringBuffer ws2 = new StringBuffer();
@@ -52,7 +56,7 @@ public class ServiceCart extends ServiceAdditional implements ServiceCartI {
                     return val;
                 })
                 .reduce(0, (result, order) -> result + (order.getHarga() * order.getKuantitas()), Integer::sum);
-        System.out.println("Total"+this.whiteSpace(15,ws2)+"   "+totalBelanja);
+        System.out.println("Total"+this.whiteSpace(18,ws2)+"   "+totalBelanja);
         System.out.println();
         System.out.println("1. Konfirmasi dan bayar");
         System.out.println("2. Kembali ke menu utama");

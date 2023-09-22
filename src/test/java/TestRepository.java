@@ -1,4 +1,4 @@
-import org.binaracademy.repository.RepoCart;
+
 import org.binaracademy.repository.RepoPage1;
 import org.binaracademy.repository.RepoPage2;
 import org.junit.jupiter.api.Assertions;
@@ -36,5 +36,25 @@ public class TestRepository {
     public void testassignedNamaPesanan__SUCCESS() {
         String hasil = rp2.assignedNamaPesanan(3);
         Assertions.assertEquals("Nasi + Ayam", hasil);
+        System.out.println(hasil);
+    }
+
+    @Test
+    public void testassignedNamaPesanan__FAILED() {
+        Assertions.assertThrows(NullPointerException.class, () -> rp2.assignedNamaPesanan(null));
+        System.out.println("Method throws to NPE class");
+    }
+
+    @Test
+    public void testassignedHargaPesanan__SUCCESS() {
+        Integer hasil = rp2.assignedHargaPesanan(5);
+        Assertions.assertEquals(5000, hasil);
+        System.out.println(hasil);
+    }
+
+    @Test
+    public void testassignedHargaPesanan__FAILED() {
+        Assertions.assertThrows(NullPointerException.class, () -> rp2.assignedNamaPesanan(null));
+        System.out.println("Method throws to NPE class");
     }
 }
