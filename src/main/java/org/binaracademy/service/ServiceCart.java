@@ -27,12 +27,12 @@ public class ServiceCart extends ServiceAdditional implements ServiceCartI {
     @Override
     public List<ModelCart> listCart() {
         RepoPage1 repoPage1 = new RepoPage1();
-        return this.qty.stream()
+        return repoPage1.assignedNama().stream()
                 .filter(Objects::nonNull)
                 .map(k -> ModelCart.builder()
-                        .nama(repoPage1.assignedNama().get(this.qty.indexOf(k)))
-                        .harga(repoPage1.assignedHarga().get(this.qty.indexOf(k)))
-                        .kuantitas(k)
+                        .nama(k)
+                        .harga(repoPage1.assignedHarga().get(repoPage1.assignedNama().indexOf(k)))
+                        .kuantitas(this.qty.get(repoPage1.assignedNama().indexOf(k)))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -46,6 +46,7 @@ public class ServiceCart extends ServiceAdditional implements ServiceCartI {
         this.header();
         System.out.println();
         Integer totalBelanja = cart.stream()
+                .filter(cls -> cls.getKuantitas() != null)
                 .map(val -> {
                     StringBuffer ws = new StringBuffer();
                     System.out.println(val.getNama()
@@ -56,7 +57,7 @@ public class ServiceCart extends ServiceAdditional implements ServiceCartI {
                     return val;
                 })
                 .reduce(0, (result, order) -> result + (order.getHarga() * order.getKuantitas()), Integer::sum);
-        System.out.println("Total"+this.whiteSpace(18,ws2)+"   "+totalBelanja);
+        System.out.println("Total"+this.whiteSpace(16,ws2)+"   "+totalBelanja);
         System.out.println();
         System.out.println("1. Konfirmasi dan bayar");
         System.out.println("2. Kembali ke menu utama");

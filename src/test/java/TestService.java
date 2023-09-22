@@ -47,6 +47,7 @@ public class TestService {
     @Test
     public void testlistCart__SUCCESS() {
         serviceCart.isiQTY(1,1);
+        serviceCart.isiQTY(2,1);
         System.out.println(serviceCart.listCart());
     }
 
