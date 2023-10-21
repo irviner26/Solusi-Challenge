@@ -1,6 +1,7 @@
 package org.binaracademy.challenge4.repository;
 
 import org.binaracademy.challenge4.model.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -39,10 +40,20 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query(nativeQuery = true, value = "select * from productdb " +
             "join merchantdb on merchantdb.code = productdb.merchant_code " +
             "where merchantdb.name = :name")
-    List<Product> queryFromCertainMerchant(@Param("name") String name, Pageable pageable);
+    Page<Product> queryFromCertainMerchant(@Param("name") String name, Pageable pageable);
 
     @Query(nativeQuery = true, value = "select * from productdb p " +
             "where p.name = :pname " +
             "and p.merchant_code = (select m.code from merchantdb as m where m.name = :mname)")
     Product queryOneFromMerchant(@Param("pname") String prodName, @Param("mname") String MercName);
+
+    @Query(nativeQuery = true, value = "select * from productdb " +
+            "join merchantdb on merchantdb.code = productdb.merchant_code " +
+            "where merchantdb.name = :name")
+    List<Product> queryListOfProdFromMerch(@Param("name") String name);
+
+    @Query(nativeQuery = true, value = "select * from productdb " +
+            "join merchantdb on merchantdb.code = productdb.merchant_code " +
+            "where merchantdb.name = :name and productdb.name = :pname")
+    Product queryProdFromMerch(@Param("name") String name, @Param("pname") String pname);
 }

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DetailResponse {
     private String productName;
+    private double productPrice;
     private double productFinalPrice;
     private int productQuantity;
 }

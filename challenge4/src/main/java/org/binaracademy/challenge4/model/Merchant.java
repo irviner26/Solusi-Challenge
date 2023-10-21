@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Builder
@@ -26,4 +27,6 @@ public class Merchant implements Serializable {
     private String name;
     private String location;
     private boolean status;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "merchant", orphanRemoval = true)
+    private List<Product> products;
 }

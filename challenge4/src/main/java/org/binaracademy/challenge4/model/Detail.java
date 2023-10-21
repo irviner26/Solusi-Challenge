@@ -22,9 +22,11 @@ public class Detail implements Serializable {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
-    @ManyToOne
+    @ManyToOne (cascade = CascadeType.ALL)
+    @JoinColumn (name = "order_id")
     private Order order;
-    @OneToOne
+    @OneToOne (cascade = CascadeType.ALL)
+    @JoinColumn (name = "product_code")
     private Product product;
     private int quantity;
     private double total;

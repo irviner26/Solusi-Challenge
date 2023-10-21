@@ -28,9 +28,17 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Modifying
     @Transactional
-    @Query(nativeQuery = true, value = "delete from userdb u where u.uname = :uname")
-    void queryDeleteByName(@Param("uname") String uname);
+    @Query(nativeQuery = true, value = "delete from userdb u " +
+            "where u.uname = :uname " +
+            "and u.password = :pass " +
+            "and u.gmail = :email")
+    void queryDeleteUser(@Param("uname") String uname,
+                         @Param("pass") String password,
+                         @Param("email") String email);
 
     @Query(nativeQuery = true, value = "select * from userdb u where u.uname = :uname")
     User queryFindUserByName(@Param("uname") String uname);
+
+    @Query(nativeQuery = true, value = "select * from userdb u where u.gmail = :email")
+    User queryFindUserByEmail(@Param("email") String email);
 }

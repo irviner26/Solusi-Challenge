@@ -1,6 +1,8 @@
 package org.binaracademy.challenge4.repository;
 
 import org.binaracademy.challenge4.model.Merchant;
+import org.binaracademy.challenge4.model.response.MerchantResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,8 +27,12 @@ public interface MerchantRepository extends JpaRepository<Merchant, String> {
     void queryDeleteByName(@Param("mname") String mname);
 
     @Query(nativeQuery = true, value = "select * from merchantdb as m where m.status = true")
-    List<Merchant> queryActiveMerchant(Pageable pageable);
+    List<Merchant> queryActiveMerchant();
+
+    @Query(nativeQuery = true, value = "select * from merchantdb as m where m.status = true")
+    Page<Merchant> queryPagedMerchantList(Pageable pageable);
 
     @Query(nativeQuery = true, value = "select * from merchantdb m where m.name = :mname")
     Merchant queryFindMerchantByName(@Param("mname") String name);
+
 }

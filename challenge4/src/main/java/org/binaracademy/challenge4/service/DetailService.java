@@ -11,8 +11,8 @@ import java.util.List;
 
 @Service
 public interface DetailService {
-    double finalPrice(ProductResponse productResponse, int quant);
+    double finalPrice(double price, int quant);
     double totalPriceInCart(List<DetailResponse> userCart);
-    Detail buildOrderDetail(int quant, double total, String username, String productName, String merchantName);
-    void addDetailsToDB(Detail orderDetail);
+    Detail buildOrderDetail(int quant, double total, Order order, String productName, String merchantName);
+    boolean addDetailsToDB(Detail orderDetail);
 }

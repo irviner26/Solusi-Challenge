@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductResponse {
-    private String productName;
-    private double productPrice;
+public class UserResponse {
+    private String usernameR;
+    private String passwordR;
+    private String emailR;
 }

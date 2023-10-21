@@ -1,65 +1,102 @@
 package org.binaracademy.challenge4.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.binaracademy.challenge4.model.Merchant;
 import org.binaracademy.challenge4.model.response.MerchantResponse;
 import org.binaracademy.challenge4.repository.MerchantRepository;
+import org.binaracademy.challenge4.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class MerchantServiceImpl implements MerchantService{
 
     @Autowired
     private MerchantRepository merchantRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     @Override
-    public void addMerchant(Merchant merchant) {
-        merchantRepository.save(Optional.ofNullable(merchant)
-                .filter(val -> val.getName() != null && val.getLocation() != null)
-                .orElse(Merchant.builder()
-                        .code("DELETETHIS1")
-                        .build()));
+    public boolean merchantExist(String merchantName) {
         try {
-            deleteMerchant("DELETETHIS1");
-            System.out.println("Merchant berhasil ditambahkan!");
+            Merchant merchant = merchantRepository.queryFindMerchantByName(merchantName);
+            return (Objects.nonNull(merchant));
         } catch (Exception e) {
-            System.out.println("Merchant berhasil ditambahkan!");
+            return false;
         }
     }
 
     @Override
-    public void changeMerchantStat(boolean tof, String mname) {
-        merchantRepository.queryUpdateMerchantStat(tof, mname);
+    public boolean addMerchant(Merchant merchant) {
+        try {
+            log.info("Attempting to add merchant");
+            merchantRepository.save(Objects.requireNonNull(Optional.ofNullable(merchant)
+                    .filter(val -> val.getName() != null && val.getLocation() != null)
+                    .orElse(null)));
+            log.info("Successfully added merchant {} to database.", merchant.getName());
+            return true;
+        } catch (Exception e) {
+            log.error("Merchant failed to be added.");
+            log.info("Cause: "+e.getMessage());
+            return false;
+        }
     }
 
     @Override
-    public void openNowMerchant() {
-        List<MerchantResponse> merchantResponseList = this.listOfMerchants();
-        AtomicInteger index = new AtomicInteger(0);
-        merchantResponseList.forEach(val ->
-            System.out.println(index.getAndIncrement()+". "+val.getMerchantName()+"\t|\t"+val.getMerchantAddress()));
+    public boolean changeMerchantStat(boolean tof, String mname) {
+        if (this.merchantExist(mname)) {
+            log.info("Attempting to edit merchant");
+            merchantRepository.queryUpdateMerchantStat(tof, mname);
+            log.info("Successfully changed merchant {} status.", mname);
+            return true;
+        } else {
+            log.error("Failed to edit merchant status.");
+            return false;
+        }
     }
 
     @Override
-    public void deleteMerchant(String mname) {
-        merchantRepository.queryDeleteByName(mname);
+    public boolean deleteMerchant(String mname) {
+        if (this.merchantExist(mname)) {
+            log.warn("Deleting all products from merchant");
+            productRepository.queryListOfProdFromMerch(mname).forEach(product -> productRepository.delete(product));
+            log.info("Attempting to delete merchant");
+            merchantRepository.queryDeleteByName(mname);
+            log.info("Successfully deleted merchant {}.", mname);
+            return true;
+        } else {
+            log.error("Failed to delete merchant.");
+            return false;
+        }
     }
 
     @Override
     public List<MerchantResponse> listOfMerchants() {
-        return merchantRepository.queryActiveMerchant(PageRequest.of(0,5))
+        return merchantRepository.queryActiveMerchant()
                 .stream()
                 .map(merchant -> MerchantResponse
                         .builder()
                         .merchantName(merchant.getName())
                         .merchantAddress(merchant.getLocation())
                         .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MerchantResponse> pageOfMerchants(int inputPage) {
+        Page<Merchant> merchants = merchantRepository.queryPagedMerchantList(PageRequest.of(inputPage, 2));
+        return merchants.stream().map(merchant -> MerchantResponse.builder()
+                .merchantName(merchant.getName())
+                .merchantAddress(merchant.getLocation()).build())
                 .collect(Collectors.toList());
     }
 }

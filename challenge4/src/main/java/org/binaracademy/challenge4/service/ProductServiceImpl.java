@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,32 +35,66 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public void addProduct(Product product) {
-        productRepository.save(Optional.ofNullable(product)
-                .filter(val -> val.getName() != null && val.getPrice() != 0)
-                .orElse(Product.builder()
-                        .code("DELETETHIS3")
-                        .build()));
+    public boolean addProduct(Product product) {
         try {
-            productRepository.deleteById("DELETETHIS3");
+            log.info("Adding product to database...");
+            productRepository.save(Objects.requireNonNull(Optional.ofNullable(product)
+                    .filter(val -> val.getName() != null && val.getPrice() != 0)
+                    .orElse(null)));
+            log.info("Successfully added product {} of merchant {}", product.getName(), product.getMerchant().getName());
+            return true;
         } catch (Exception e) {
-            log.info("Succesfully added to database");
+            log.error("Could not add product");
+            return false;
         }
     }
 
     @Override
-    public void updateProductName(String merchantName, String oldProductName, String newProductName) {
-        productRepository.queryEditProductName(merchantName, oldProductName, newProductName);
+    public boolean productExist(String merchantName, String productName) {
+        try {
+            return Objects.nonNull(productRepository.queryOneFromMerchant(productName,merchantName));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
-    public void updateProductPrice(String merchantName, String productName, double newProductPrice) {
-        productRepository.queryEditProductPrice(merchantName,productName,newProductPrice);
+    public boolean updateProductName(String merchantName, String oldProductName, String newProductName) {
+        if (productExist(merchantName,oldProductName)) {
+            log.info("Submitting edit to database...");
+            productRepository.queryEditProductName(merchantName, oldProductName, newProductName);
+            log.info("Successfully edited product name ({} -> {})",oldProductName,newProductName);
+            return true;
+        } else {
+            log.error("Could not edit product {} name", oldProductName);
+            return false;
+        }
     }
 
     @Override
-    public void removeProductOf(String productName, String merchantName) {
-        productRepository.queryDeleteProduct(productName,merchantName);
+    public boolean updateProductPrice(String merchantName, String productName, double newProductPrice) {
+        if (productExist(merchantName,productName)) {
+            log.info("Submitting edit to database...");
+            productRepository.queryEditProductPrice(merchantName,productName,newProductPrice);
+            log.info("Successfully edited product price");
+            return true;
+        } else {
+            log.error("Could not edit product {} price", productName);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeProductOf(String productName, String merchantName) {
+        if (productExist(merchantName,productName)) {
+            log.info("Deleting product from database...");
+            productRepository.queryDeleteProduct(productName,merchantName);
+            log.info("Successfully deleted product {}", productName);
+            return true;
+        } else {
+            log.error("Could not delete product");
+            return false;
+        }
     }
 
     @Override
@@ -69,19 +102,23 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.queryFromCertainMerchant(merchantName, PageRequest.of(page,5))
                 .stream()
                 .map(product -> ProductResponse.builder()
-                        .ProductName(product.getName())
-                        .ProductPrice(product.getPrice())
+                        .productName(product.getName())
+                        .productPrice(product.getPrice())
                         .build())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void viewListOfProduct(List<ProductResponse> products) {
-        AtomicInteger index = new AtomicInteger(-1);
-        products.forEach(prod ->{
-                    index.addAndGet(1);
-                    System.out.println(index+". "+prod.getProductName()+"\t|\t"+prod.getProductPrice());
-                });
+    public ProductResponse oneProduct(String merchantName, String productName) {
+        if (productExist(merchantName,productName)) {
+            Product quedProd = productRepository.queryProdFromMerch(merchantName,productName);
+            return ProductResponse.builder()
+                    .productName(quedProd.getName())
+                    .productPrice(quedProd.getPrice())
+                    .build();
+        }
+        else return new ProductResponse();
     }
+
 }

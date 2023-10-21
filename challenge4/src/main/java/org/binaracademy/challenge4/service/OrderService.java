@@ -10,7 +10,9 @@ import java.util.List;
 public interface OrderService {
 
     Order orderBuilder(String username, Date time, String destination, boolean stat);
-    void addOrderToDB(Order confirmedOrders);
+    boolean addOrderToDB(Order order);
+
+    // TODO: TBA
     void editOrderDestination(String newDestination);
     void editOrderStatus(Boolean newStatus);
     void deleteOrder(Order order);

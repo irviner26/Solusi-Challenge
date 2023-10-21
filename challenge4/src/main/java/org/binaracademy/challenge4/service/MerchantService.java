@@ -8,16 +8,12 @@ import java.util.List;
 
 @Service
 public interface MerchantService {
-    // Method ini berfungsi untuk menambahkan merchant
-    void addMerchant(Merchant merchant);
 
-    // Method ini berfungsi untuk men-set status dari merchant
-    void changeMerchantStat(boolean tof, String mname);
+    boolean merchantExist(String merchantName);
 
-    // Method ini berfungsi untuk menampilkan merchant yang sedang buka
-    void openNowMerchant();
-
-    void deleteMerchant(String mname);
-
+    boolean addMerchant(Merchant merchant);
+    boolean changeMerchantStat(boolean tof, String mname);
+    boolean deleteMerchant(String mname);
     List<MerchantResponse> listOfMerchants();
+    List<MerchantResponse> pageOfMerchants(int inputPage);
 }

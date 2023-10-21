@@ -5,16 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderResponse {
-    private String orderDestination;
-    private Date orderTime;
-    private String merchantName;
-    private List<DetailResponse> detailResponses;
+public class ErrorResponse<T> {
+    private T entity;
+    private int errorCode;
+    private String errorMessage;
 }

@@ -6,16 +6,17 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserService {
 
-    // Method berikut ini berfungsi untuk menambahkan user:
-    void addUser(User user);
+    boolean userIsExistAndCorrect(String username, String email);
 
+    // Method berikut ini berfungsi untuk menambahkan user:
+    boolean addUser(User user);
     // Method berikut berfungsi untuk mengupdate user:
-    void updateUsername(String newUname, String oldUname);
-    void updatePassword(String newPass, String name);
-    void updateEmail(String newGmail, String name);
+    boolean updateUsername(String newUname, String oldUname, String email);
+    boolean updatePassword(String newPass, String name, String email);
+    boolean updateEmail(String newGmail, String name, String oldEmail);
 
     // Method ini berfungsi untuk menghapus user:
-    void deleteUser(String uname);
+    boolean deleteUser(String uname, String password, String email);
 
     User getUserByName(String name);
 }
