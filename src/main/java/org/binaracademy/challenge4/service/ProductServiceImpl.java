@@ -24,6 +24,9 @@ public class ProductServiceImpl implements ProductService{
     @Autowired
     private MerchantRepository merchantRepository;
 
+    @Autowired
+    private MerchantService merchantService;
+
 
     @Override
     public Product productBuilder(String name, double price, String merchantName) {
@@ -36,26 +39,32 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public boolean addProduct(Product product) {
-        try {
-            log.info("Adding product to database...");
-            productRepository.save(Objects.requireNonNull(Optional.ofNullable(product)
-                    .filter(val -> val.getName() != null && val.getPrice() != 0)
-                    .orElse(null)));
-            log.info("Successfully added product {} of merchant {}", product.getName(), product.getMerchant().getName());
-            return true;
-        } catch (Exception e) {
-            log.error("Could not add product");
-            return false;
+        if (merchantService.merchantExist(product.getMerchant().getName())) {
+            try {
+                log.info("Adding product to database...");
+                productRepository.save(Objects.requireNonNull(Optional.of(product)
+                        .filter(val -> val.getName() != null && val.getPrice() != 0)
+                        .orElse(null)));
+                log.info("Successfully added product {} of merchant {}", product.getName(), product.getMerchant().getName());
+                return true;
+            } catch (Exception e) {
+                log.error("Could not add product");
+                return false;
+            }
         }
+        return false;
     }
 
     @Override
     public boolean productExist(String merchantName, String productName) {
-        try {
-            return Objects.nonNull(productRepository.queryOneFromMerchant(productName,merchantName));
-        } catch (Exception e) {
-            return false;
+        if (merchantService.merchantExist(merchantName)) {
+            try {
+                return Objects.nonNull(productRepository.queryOneFromMerchant(productName,merchantName));
+            } catch (Exception e) {
+                return false;
+            }
         }
+        return false;
     }
 
     @Override

@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    //TODO: Replace by signup
     @Override
     public boolean addUser(User user) {
         try {

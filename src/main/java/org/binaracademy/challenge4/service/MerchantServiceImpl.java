@@ -29,7 +29,7 @@ public class MerchantServiceImpl implements MerchantService{
     public boolean merchantExist(String merchantName) {
         try {
             Merchant merchant = merchantRepository.queryFindMerchantByName(merchantName);
-            return (Objects.nonNull(merchant));
+            return (Objects.nonNull(merchant) && merchantName.equals(merchant.getName()));
         } catch (Exception e) {
             return false;
         }
@@ -40,7 +40,10 @@ public class MerchantServiceImpl implements MerchantService{
         try {
             log.info("Attempting to add merchant");
             merchantRepository.save(Objects.requireNonNull(Optional.ofNullable(merchant)
-                    .filter(val -> val.getName() != null && val.getLocation() != null)
+                    .filter(val -> val.getName() != null &&
+                            val.getLocation() != null &&
+                            !val.getName().isEmpty() &&
+                            !val.getLocation().isEmpty())
                     .orElse(null)));
             log.info("Successfully added merchant {} to database.", merchant.getName());
             return true;
