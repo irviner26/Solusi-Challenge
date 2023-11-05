@@ -29,17 +29,20 @@ public class MerchantController {
     @PostMapping(value = "/api/binarfud/merchant/add", consumes = "application/json")
     public ResponseEntity<String> requestAddMerchant(@RequestBody MerchantResponse merchant,
                                                      @RequestHeader(name = "Authorization") String token) {
-        if (merchantService.addMerchant(Merchant.builder()
-                        .name(merchant.getMerchantName())
-                        .location(merchant.getMerchantAddress())
-                        .status(true)
-                        .user(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))
-                        .build())) {
-            return new ResponseEntity<>("Successfully added merchant", HttpStatus.OK);
+        if (merchantService.merchantObjectWithName(merchant.getMerchantName()).getUser().equals(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))) {
+            if (merchantService.addMerchant(Merchant.builder()
+                    .name(merchant.getMerchantName())
+                    .location(merchant.getMerchantAddress())
+                    .status(true)
+                    .user(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))
+                    .build())) {
+                return new ResponseEntity<>("Successfully added merchant", HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>("Failed to add "+merchant+" to database", HttpStatus.NOT_ACCEPTABLE);
+            }
         }
-        else {
-            return new ResponseEntity<>("Failed to add "+merchant+" to database", HttpStatus.OK);
-        }
+        return new ResponseEntity<>("Failed to add "+merchant+" to database", HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PutMapping(value = "/api/binarfud/merchant/edit/status/{merchant}")

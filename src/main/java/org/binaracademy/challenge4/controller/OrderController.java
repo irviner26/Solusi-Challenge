@@ -26,12 +26,6 @@ public class OrderController {
     DetailService detailService;
 
     @Autowired
-    ProductService productService;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
     InvoiceService invoiceService;
 
     //TODO: Membuat Pesanan
@@ -56,8 +50,6 @@ public class OrderController {
         } else return new ResponseEntity<>("Failed to add order", HttpStatus.NOT_ACCEPTABLE);
     }
 
-
-    //TODO: Menampilkan Pesanan
 
     @GetMapping (value = "/api/binarfud/ordered/{username}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity generateInvoice(@PathVariable("username") String username) throws JRException, FileNotFoundException {
