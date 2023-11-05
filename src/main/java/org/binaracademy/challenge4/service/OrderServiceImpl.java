@@ -20,7 +20,6 @@ public class OrderServiceImpl implements OrderService{
     private UserRepository userRepository;
     @Autowired
     private OrderRepository orderRepository;
-
     @Autowired
     private DetailRepository detailRepository;
 
