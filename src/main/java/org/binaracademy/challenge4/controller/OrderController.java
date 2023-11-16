@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @Slf4j
@@ -32,18 +33,23 @@ public class OrderController {
 
     @PostMapping(value = "/api/binarfud/ordering/{username}", consumes = "application/json")
     public ResponseEntity<String> requestMakeOrder(@PathVariable("username") String username,
-                                                   @RequestBody OrderResponse orderResponse) {
-        Order orderUser =  orderService.orderBuilder(username,new Date(),orderResponse.getOrderDestination(),false);
+                                                   @RequestBody OrderResponse orderResponse) throws ExecutionException, InterruptedException {
+        Order orderUser =  orderService.orderBuilder(username,new Date(),orderResponse.getOrderDestination(),false).get();
 
-        if (orderService.addOrderToDB(orderUser)) {
+        if (orderService.addOrderToDB(orderUser).get()) {
             orderResponse.getDetailResponses().forEach(detailResponse ->
             {
-                Detail detail = detailService.buildOrderDetail(
-                        detailResponse.getProductQuantity(),
-                        detailService.finalPrice(detailResponse.getProductPrice(),detailResponse.getProductQuantity()),
-                        orderUser,
-                        detailResponse.getProductName(),
-                        orderResponse.getMerchantName());
+                Detail detail = null;
+                try {
+                    detail = detailService.buildOrderDetail(
+                            detailResponse.getProductQuantity(),
+                            detailService.finalPrice(detailResponse.getProductPrice(),detailResponse.getProductQuantity()),
+                            orderUser,
+                            detailResponse.getProductName(),
+                            orderResponse.getMerchantName()).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
                 detailService.addDetailsToDB(detail);
             });
             return new ResponseEntity<>("Successfully added order", HttpStatus.OK);

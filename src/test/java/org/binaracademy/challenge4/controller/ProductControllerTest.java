@@ -1,6 +1,6 @@
 package org.binaracademy.challenge4.controller;
 
-import org.binaracademy.challenge4.SecConfig.JwtUtils;
+import org.binaracademy.challenge4.secconfig.JwtUtils;
 import org.binaracademy.challenge4.model.Merchant;
 import org.binaracademy.challenge4.model.User;
 import org.binaracademy.challenge4.model.response.ErrorResponse;
@@ -21,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,14 +43,14 @@ public class ProductControllerTest {
     JwtUtils jwtUtils;
 
     @Test
-    void TEST_REQUESTADDPRODUCT() {
+    void TEST_REQUESTADDPRODUCT() throws ExecutionException, InterruptedException {
         Mockito.when(merchantService.merchantOfName(Mockito.anyString()))
-                        .thenReturn(MerchantResponse.builder()
+                        .thenReturn(CompletableFuture.supplyAsync(() ->MerchantResponse.builder()
                                 .merchantName("M1")
                                 .merchantAddress("L1")
-                                .build());
+                                .build()));
         Mockito.when(merchantService.merchantObjectWithName(Mockito.anyString()))
-                .thenReturn(Merchant
+                .thenReturn(CompletableFuture.supplyAsync(() -> Merchant
                         .builder()
                         .name("M1")
                         .location("L1")
@@ -56,14 +58,14 @@ public class ProductControllerTest {
                         .user(User.builder()
                                 .uname("U1")
                                 .build())
-                        .build());
+                        .build()));
         Mockito.when(jwtUtils.getUsernameFromJwtToken(Mockito.anyString()))
                 .thenReturn("U1");
         Mockito.when(userService.getUserByName("U1"))
                 .thenReturn(User.builder()
                         .uname("U1")
                         .build());
-        Mockito.when(productService.addProduct(Mockito.any())).thenReturn(true);
+        Mockito.when(productService.addProduct(Mockito.any())).thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
 
         ResponseEntity<ErrorResponse<Object>> output =
                 productController.requestAddProduct("M1",
@@ -79,14 +81,14 @@ public class ProductControllerTest {
     }
 
     @Test
-    void TEST_REQUESTUPDATENAME() {
+    void TEST_REQUESTUPDATENAME() throws ExecutionException, InterruptedException {
         Mockito.when(merchantService.merchantOfName(Mockito.anyString()))
-                .thenReturn(MerchantResponse.builder()
+                .thenReturn(CompletableFuture.supplyAsync(() -> MerchantResponse.builder()
                         .merchantName("M1")
                         .merchantAddress("L1")
-                        .build());
+                        .build()));
         Mockito.when(merchantService.merchantObjectWithName(Mockito.anyString()))
-                .thenReturn(Merchant
+                .thenReturn(CompletableFuture.supplyAsync(() -> Merchant
                         .builder()
                         .name("M1")
                         .location("L1")
@@ -94,14 +96,14 @@ public class ProductControllerTest {
                         .user(User.builder()
                                 .uname("U1")
                                 .build())
-                        .build());
+                        .build()));
         Mockito.when(jwtUtils.getUsernameFromJwtToken(Mockito.anyString()))
                 .thenReturn("U1");
         Mockito.when(userService.getUserByName("U1"))
                 .thenReturn(User.builder()
                         .uname("U1")
                         .build());
-        Mockito.when(productService.updateProductName(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+        Mockito.when(productService.updateProductName(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
 
         ResponseEntity<ErrorResponse<Object>> output = productController.requestUpdateProductName("P1",
                 ProductResponse.builder().productName("PR1").productPrice(1).build(),
@@ -119,14 +121,14 @@ public class ProductControllerTest {
     }
 
     @Test
-    void TEST_REQUESTUPDATEPRICE() {
+    void TEST_REQUESTUPDATEPRICE() throws ExecutionException, InterruptedException {
         Mockito.when(merchantService.merchantOfName(Mockito.anyString()))
-                .thenReturn(MerchantResponse.builder()
+                .thenReturn(CompletableFuture.supplyAsync(() -> MerchantResponse.builder()
                         .merchantName("M1")
                         .merchantAddress("L1")
-                        .build());
+                        .build()));
         Mockito.when(merchantService.merchantObjectWithName(Mockito.anyString()))
-                .thenReturn(Merchant
+                .thenReturn(CompletableFuture.supplyAsync(() -> Merchant
                         .builder()
                         .name("M1")
                         .location("L1")
@@ -134,14 +136,14 @@ public class ProductControllerTest {
                         .user(User.builder()
                                 .uname("U1")
                                 .build())
-                        .build());
+                        .build()));
         Mockito.when(jwtUtils.getUsernameFromJwtToken(Mockito.anyString()))
                 .thenReturn("U1");
         Mockito.when(userService.getUserByName("U1"))
                 .thenReturn(User.builder()
                         .uname("U1")
                         .build());
-        Mockito.when(productService.updateProductPrice(Mockito.anyString(), Mockito.anyString(), Mockito.anyDouble())).thenReturn(true);
+        Mockito.when(productService.updateProductPrice(Mockito.anyString(), Mockito.anyString(), Mockito.anyDouble())).thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
         ResponseEntity<ErrorResponse<Object>> output = productController.requestUpdateProductPrice("P1",
                 ProductResponse.builder().productName("P1").productPrice(2).build(),
                 "M1",
@@ -158,14 +160,14 @@ public class ProductControllerTest {
     }
 
     @Test
-    void TEST_REQUESTDELETEPRODUCT() {
+    void TEST_REQUESTDELETEPRODUCT() throws ExecutionException, InterruptedException {
         Mockito.when(merchantService.merchantOfName(Mockito.anyString()))
-                .thenReturn(MerchantResponse.builder()
+                .thenReturn(CompletableFuture.supplyAsync(() -> MerchantResponse.builder()
                         .merchantName("M1")
                         .merchantAddress("L1")
-                        .build());
+                        .build()));
         Mockito.when(merchantService.merchantObjectWithName(Mockito.anyString()))
-                .thenReturn(Merchant
+                .thenReturn(CompletableFuture.supplyAsync(() -> Merchant
                         .builder()
                         .name("M1")
                         .location("L1")
@@ -173,14 +175,14 @@ public class ProductControllerTest {
                         .user(User.builder()
                                 .uname("U1")
                                 .build())
-                        .build());
+                        .build()));
         Mockito.when(jwtUtils.getUsernameFromJwtToken(Mockito.anyString()))
                 .thenReturn("U1");
         Mockito.when(userService.getUserByName("U1"))
                 .thenReturn(User.builder()
                         .uname("U1")
                         .build());
-        Mockito.when(productService.removeProductOf(Mockito.anyString(),Mockito.anyString())).thenReturn(true);
+        Mockito.when(productService.removeProductOf(Mockito.anyString(),Mockito.anyString())).thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
         ResponseEntity<ErrorResponse<Object>> output = productController.requestDeleteProduct("M1","P1",Mockito.anyString());
         ResponseEntity<ErrorResponse<Object>> expect = new ResponseEntity<>(ErrorResponse.builder()
                 .errorMessage("Successfully deleted product P1")
@@ -193,7 +195,7 @@ public class ProductControllerTest {
     void TEST_REQUESTGETPRODUCT() {
         Mockito.when(productService.ListOfAvailableProduct(Mockito.anyString(), Mockito.anyInt()))
                 .thenReturn(
-                        Arrays.asList(
+                        CompletableFuture.supplyAsync(() -> Arrays.asList(
                                 ProductResponse.builder()
                                         .productName("P1")
                                         .productPrice(1)
@@ -206,7 +208,7 @@ public class ProductControllerTest {
                                         .productName("P3")
                                         .productPrice(3)
                                         .build()
-                        )
+                        ))
                 );
         List<ProductResponse> output = productController.requestGetProduct("M1", 0);
         List<ProductResponse> expect = Arrays.asList(

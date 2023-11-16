@@ -9,11 +9,14 @@ import org.binaracademy.challenge4.repository.DetailRepository;
 import org.binaracademy.challenge4.repository.OrderRepository;
 import org.binaracademy.challenge4.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Slf4j
@@ -42,22 +45,26 @@ public class DetailServiceImpl implements DetailService{
         return userCart.stream().reduce(0.0, (aDouble, detailResponse) -> aDouble + detailResponse.getProductFinalPrice(), Double::sum);
     }
 
+    @Async
+    @Transactional(readOnly = true)
     @Override
-    public Detail buildOrderDetail(int quant,
-                                   double total,
-                                   Order order,
-                                   String productName,
-                                   String merchantName) {
-        return Detail.builder()
+    public CompletableFuture<Detail> buildOrderDetail(int quant,
+                                                      double total,
+                                                      Order order,
+                                                      String productName,
+                                                      String merchantName) {
+        return CompletableFuture.supplyAsync(() -> Detail.builder()
                 .quantity(quant)
                 .total(total)
                 .order(order)
                 .product(productRepository.queryOneFromMerchant(productName,merchantName))
-                .build();
+                .build());
     }
 
+    @Async
+    @Transactional
     @Override
-    public boolean addDetailsToDB(Detail detail) {
+    public CompletableFuture<Boolean> addDetailsToDB(Detail detail) {
         Detail details = Optional.ofNullable(detail)
                 .filter(detail1 -> detail1.getQuantity() != 0 &&
                         detail1.getTotal() != 0 &&
@@ -69,10 +76,10 @@ public class DetailServiceImpl implements DetailService{
             assert details != null;
             detailRepository.save(details);
             log.info("Successfully added detail");
-            return true;
+            return CompletableFuture.supplyAsync(() -> Boolean.TRUE);
         } catch (Exception e) {
             log.info("Could not add detail to database");
-            return false;
+            return CompletableFuture.supplyAsync(() -> Boolean.FALSE);
         }
     }
 }

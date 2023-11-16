@@ -3,20 +3,22 @@ package org.binaracademy.challenge4.service;
 import org.binaracademy.challenge4.model.User;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 public interface UserService {
 
-    boolean userIsExistAndCorrect(String username, String email);
+    CompletableFuture<Boolean> userIsExistAndCorrect(String username, String email);
 
     // Method berikut ini berfungsi untuk menambahkan user:
-    boolean addUser(User user);
+    CompletableFuture<Boolean> addUser(User user);
     // Method berikut berfungsi untuk mengupdate user:
-    boolean updateUsername(String newUname, String oldUname, String email);
-    boolean updatePassword(String newPass, String name, String email);
-    boolean updateEmail(String newGmail, String name, String oldEmail);
+    CompletableFuture<Boolean> updateUsername(String newUname, String oldUname, String email);
+    CompletableFuture<Boolean> updatePassword(String newPass, String name, String email);
+    CompletableFuture<Boolean> updateEmail(String newGmail, String name, String oldEmail);
 
     // Method ini berfungsi untuk menghapus user:
-    boolean deleteUser(String uname, String password, String email);
+    CompletableFuture<Boolean> deleteUser(String uname, String password, String email);
 
     User getUserByName(String name);
 }

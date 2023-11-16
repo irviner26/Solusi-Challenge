@@ -5,12 +5,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public interface OrderService {
 
-    Order orderBuilder(String username, Date time, String destination, boolean stat);
-    boolean addOrderToDB(Order order);
+    CompletableFuture<Order> orderBuilder(String username, Date time, String destination, boolean stat);
+    CompletableFuture<Boolean> addOrderToDB(Order order);
 
     // TODO: TBA
     void editOrderDestination(String newDestination);

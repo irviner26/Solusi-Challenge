@@ -14,6 +14,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BooleanSupplier;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -28,11 +31,11 @@ public class OrderServiceTest {
     UserRepository userRepository;
 
     @Test
-    void TEST_ORDERBUILDER() {
+    void TEST_ORDERBUILDER() throws ExecutionException, InterruptedException {
         Mockito.when(userRepository.queryFindUserByName(Mockito.anyString()))
                 .thenReturn(User.builder().uname("u1").build());
 
-        Order created = orderService.orderBuilder("u1", new Date(), "d", false);
+        Order created = orderService.orderBuilder("u1", new Date(), "d", false).get();
         Order expected = Order.builder()
                 .user(User.builder().uname("u1").build())
                 .time(created.getTime())
@@ -54,7 +57,7 @@ public class OrderServiceTest {
         Mockito.when(orderRepository.save(Mockito.any(Order.class)))
                 .thenReturn(expected);
 
-        boolean added = orderService.addOrderToDB(
+        CompletableFuture<Boolean> added = orderService.addOrderToDB(
                 Order.builder()
                         .user(User.builder().uname("u1").build())
                         .time(expected.getTime())
@@ -64,6 +67,6 @@ public class OrderServiceTest {
         );
 
         Mockito.verify(orderRepository).save(Mockito.any(Order.class));
-        Assertions.assertTrue(added);
+        Assertions.assertTrue((BooleanSupplier) added);
     }
 }

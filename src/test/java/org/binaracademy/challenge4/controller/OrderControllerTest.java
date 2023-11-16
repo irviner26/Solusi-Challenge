@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -34,17 +36,17 @@ public class OrderControllerTest {
     DetailService detailService;
 
     @Test
-    void TEST_REQUESTORDER() {
+    void TEST_REQUESTORDER() throws ExecutionException, InterruptedException {
         Mockito.when(orderService.orderBuilder(Mockito.anyString(),Mockito.any(),Mockito.anyString(),Mockito.anyBoolean()))
-                .thenReturn(Order.builder()
+                .thenReturn(CompletableFuture.supplyAsync(() -> Order.builder()
                         .destination("D1")
                         .time(new Date(0))
                         .status(true)
                         .user(User.builder().uname("U1").build())
-                        .build());
+                        .build()));
         Mockito.when(detailService.finalPrice(Mockito.anyDouble(), Mockito.anyInt())).thenReturn(10.0);
-        Mockito.when(orderService.addOrderToDB(Mockito.any(Order.class))).thenReturn(true);
-        Mockito.when(detailService.addDetailsToDB(Mockito.any())).thenReturn(true);
+        Mockito.when(orderService.addOrderToDB(Mockito.any(Order.class))).thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
+        Mockito.when(detailService.addDetailsToDB(Mockito.any())).thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
 
         ResponseEntity<String> output = orderController.requestMakeOrder("U1", OrderResponse.builder()
                         .orderTime(new Date(0))

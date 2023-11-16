@@ -15,6 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BooleanSupplier;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,10 +38,10 @@ public class DetailServiceTest {
     ProductService productService;
 
     @Test
-    void TEST_DETAILBUILDER() {
+    void TEST_DETAILBUILDER() throws ExecutionException, InterruptedException {
         Mockito.when(productRepository.queryOneFromMerchant(Mockito.anyString(),Mockito.anyString()))
                 .thenReturn(Product.builder().name("p1").build());
-        Detail detail = detailService.buildOrderDetail(1,1, Order.builder().time(new Date(0)).build(),"p1","m1");
+        Detail detail = detailService.buildOrderDetail(1,1, Order.builder().time(new Date(0)).build(),"p1","m1").get();
         Detail detail1 =
                 Detail.builder()
                         .quantity(1)
@@ -59,7 +62,7 @@ public class DetailServiceTest {
                         .quantity(456)
                         .build());
 
-        boolean added = detailService.addDetailsToDB(
+        CompletableFuture<Boolean> added = detailService.addDetailsToDB(
                 Detail.builder()
                         .total(123)
                         .product(
@@ -72,7 +75,7 @@ public class DetailServiceTest {
                         .build()
         );
         Mockito.verify(detailRepository).save(Mockito.any(Detail.class));
-        Assertions.assertTrue(added);
+        Assertions.assertTrue((BooleanSupplier) added);
     }
 
 }

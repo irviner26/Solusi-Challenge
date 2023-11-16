@@ -1,7 +1,7 @@
 package org.binaracademy.challenge4.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.binaracademy.challenge4.SecConfig.JwtUtils;
+import org.binaracademy.challenge4.secconfig.JwtUtils;
 import org.binaracademy.challenge4.model.*;
 import org.binaracademy.challenge4.model.request.LoginRequest;
 import org.binaracademy.challenge4.model.request.SignupRequest;

@@ -8,11 +8,15 @@ import org.binaracademy.challenge4.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,18 +29,22 @@ public class MerchantServiceImpl implements MerchantService{
     @Autowired
     private ProductRepository productRepository;
 
+    @Async
+    @Transactional(readOnly = true)
     @Override
-    public boolean merchantExist(String merchantName) {
+    public CompletableFuture<Boolean> merchantExist(String merchantName) {
         try {
             Merchant merchant = merchantRepository.queryFindMerchantByName(merchantName);
-            return (Objects.nonNull(merchant) && merchantName.equals(merchant.getName()));
+            return CompletableFuture.supplyAsync(() -> Objects.nonNull(merchant) && merchantName.equals(merchant.getName()));
         } catch (Exception e) {
-            return false;
+            return CompletableFuture.supplyAsync(() -> Boolean.FALSE);
         }
     }
 
+    @Async
+    @Transactional
     @Override
-    public boolean addMerchant(Merchant merchant) {
+    public CompletableFuture<Boolean> addMerchant(Merchant merchant) {
         try {
             log.info("Attempting to add merchant");
             merchantRepository.save(Objects.requireNonNull(Optional.ofNullable(merchant)
@@ -46,76 +54,102 @@ public class MerchantServiceImpl implements MerchantService{
                             !val.getLocation().isEmpty())
                     .orElse(null)));
             log.info("Successfully added merchant {} to database.", merchant.getName());
-            return true;
+            return CompletableFuture.supplyAsync(() -> Boolean.TRUE);
         } catch (Exception e) {
             log.error("Merchant failed to be added.");
             log.info("Cause: "+e.getMessage());
-            return false;
+            return CompletableFuture.supplyAsync(() -> Boolean.FALSE);
         }
     }
 
+    @Async
+    @Transactional
     @Override
-    public boolean changeMerchantStat(boolean tof, String mname) {
-        if (this.merchantExist(mname)) {
-            log.info("Attempting to edit merchant");
-            merchantRepository.queryUpdateMerchantStat(tof, mname);
-            log.info("Successfully changed merchant {} status.", mname);
-            return true;
-        } else {
-            log.error("Failed to edit merchant status.");
-            return false;
+    public CompletableFuture<Boolean> changeMerchantStat(boolean tof, String mname) {
+        try {
+            if (this.merchantExist(mname).get()) {
+                log.info("Attempting to edit merchant");
+                merchantRepository.queryUpdateMerchantStat(tof, mname);
+                log.info("Successfully changed merchant {} status.", mname);
+                return CompletableFuture.supplyAsync(() -> Boolean.TRUE);
+            } else {
+                log.error("Failed to edit merchant status.");
+                return CompletableFuture.supplyAsync(() -> Boolean.FALSE);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    @Async
+    @Transactional
     @Override
-    public boolean deleteMerchant(String mname) {
-        if (this.merchantExist(mname)) {
-            log.warn("Deleting all products from merchant");
-            productRepository.queryListOfProdFromMerch(mname).forEach(product -> productRepository.delete(product));
-            log.info("Attempting to delete merchant");
-            merchantRepository.queryDeleteByName(mname);
-            log.info("Successfully deleted merchant {}.", mname);
-            return true;
-        } else {
-            log.error("Failed to delete merchant.");
-            return false;
+    public CompletableFuture<Boolean> deleteMerchant(String mname) {
+        try {
+            if (this.merchantExist(mname).get()) {
+                log.warn("Deleting all products from merchant");
+                productRepository.queryListOfProdFromMerch(mname).forEach(product -> productRepository.delete(product));
+                log.info("Attempting to delete merchant");
+                merchantRepository.queryDeleteByName(mname);
+                log.info("Successfully deleted merchant {}.", mname);
+                return CompletableFuture.supplyAsync(() -> Boolean.TRUE);
+            } else {
+                log.error("Failed to delete merchant.");
+                return CompletableFuture.supplyAsync(() -> Boolean.FALSE);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    @Async
+    @Transactional(readOnly = true)
     @Override
-    public List<MerchantResponse> listOfMerchants() {
-        return merchantRepository.queryActiveMerchant()
+    public CompletableFuture<List<MerchantResponse>> listOfMerchants() {
+        return CompletableFuture.supplyAsync(() -> merchantRepository.queryActiveMerchant()
                 .stream()
                 .map(merchant -> MerchantResponse
                         .builder()
                         .merchantName(merchant.getName())
                         .merchantAddress(merchant.getLocation())
                         .build())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
+    @Async
+    @Transactional(readOnly = true)
     @Override
-    public List<MerchantResponse> pageOfMerchants(int inputPage) {
+    public CompletableFuture<List<MerchantResponse>> pageOfMerchants(int inputPage) {
         Page<Merchant> merchants = merchantRepository.queryPagedMerchantList(PageRequest.of(inputPage, 2));
-        return merchants.stream().map(merchant -> MerchantResponse.builder()
+        return CompletableFuture.supplyAsync(() -> merchants.stream().map(merchant -> MerchantResponse.builder()
                 .merchantName(merchant.getName())
                 .merchantAddress(merchant.getLocation()).build())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
+    @Async
+    @Transactional(readOnly = true)
     @Override
-    public MerchantResponse merchantOfName(String merchantName) {
-        if (this.merchantExist(merchantName)) {
-            Merchant merchant = merchantRepository.queryFindMerchantByName(merchantName);
-            return MerchantResponse.builder().merchantName(merchant.getName()).merchantAddress(merchant.getLocation()).build();
-        } else {
-            log.error("Could not find merchant with name {}", merchantName);
-            return null;
+    public CompletableFuture<MerchantResponse> merchantOfName(String merchantName) {
+        try {
+            if (this.merchantExist(merchantName).get()) {
+                Merchant merchant = merchantRepository.queryFindMerchantByName(merchantName);
+                return CompletableFuture.supplyAsync(() -> MerchantResponse.builder()
+                        .merchantName(merchant.getName())
+                        .merchantAddress(merchant.getLocation())
+                        .build());
+            } else {
+                log.error("Could not find merchant with name {}", merchantName);
+                return null;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    @Async
     @Override
-    public Merchant merchantObjectWithName(String merchantName) {
-        return merchantRepository.queryFindMerchantByName(merchantName);
+    public CompletableFuture<Merchant> merchantObjectWithName(String merchantName) {
+        return CompletableFuture.supplyAsync(() -> merchantRepository.queryFindMerchantByName(merchantName));
     }
 }

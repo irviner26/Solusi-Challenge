@@ -8,11 +8,12 @@ import org.binaracademy.challenge4.model.response.ProductResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public interface DetailService {
     double finalPrice(double price, int quant);
     double totalPriceInCart(List<DetailResponse> userCart);
-    Detail buildOrderDetail(int quant, double total, Order order, String productName, String merchantName);
-    boolean addDetailsToDB(Detail orderDetail);
+    CompletableFuture<Detail> buildOrderDetail(int quant, double total, Order order, String productName, String merchantName);
+    CompletableFuture<Boolean> addDetailsToDB(Detail orderDetail);
 }

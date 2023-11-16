@@ -5,6 +5,7 @@ import org.binaracademy.challenge4.model.response.ProductResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public interface ProductService {
@@ -14,18 +15,18 @@ public interface ProductService {
     // Method berikut ini adalah method yang digunakan untuk menambahkan produk baru
     // sesuai dengan merchant code-nya.
     Product productBuilder(String name, double price, String merchantName);
-    boolean addProduct(Product product);
+    CompletableFuture<Boolean> addProduct(Product product);
 
     // Method berikut ini berfungsi untuk mengupdate nama dan harga dari produk
-    boolean productExist(String merchantName, String productName);
-    boolean updateProductName(String merchantName, String oldProductName, String newProductName);
-    boolean updateProductPrice(String merchantName, String productName, double newProductPrice);
+    CompletableFuture<Boolean> productExist(String merchantName, String productName);
+    CompletableFuture<Boolean> updateProductName(String merchantName, String oldProductName, String newProductName);
+    CompletableFuture<Boolean> updateProductPrice(String merchantName, String productName, double newProductPrice);
 
     // Method berikut ini berfungsi untuk menghapus produk yang dipilih
-    boolean removeProductOf(String productName, String merchantName);
+    CompletableFuture<Boolean> removeProductOf(String productName, String merchantName);
 
     // Method berikut ini berfungsi untuk menampilkan produk yang ada dari suatu merchant
-    List<ProductResponse> ListOfAvailableProduct(String merchantName, int page);
-    ProductResponse oneProduct(String merchantName, String productName);
+    CompletableFuture<List<ProductResponse>> ListOfAvailableProduct(String merchantName, int page);
+    CompletableFuture<ProductResponse> oneProduct(String merchantName, String productName);
 
 }

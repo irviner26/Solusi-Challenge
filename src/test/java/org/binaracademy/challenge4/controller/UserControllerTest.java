@@ -1,6 +1,6 @@
 package org.binaracademy.challenge4.controller;
 
-import org.binaracademy.challenge4.SecConfig.JwtUtils;
+import org.binaracademy.challenge4.secconfig.JwtUtils;
 import org.binaracademy.challenge4.model.User;
 import org.binaracademy.challenge4.model.response.ErrorResponse;
 import org.binaracademy.challenge4.model.response.UserResponse;
@@ -14,6 +14,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.concurrent.CompletableFuture;
 
 
 @SpringBootTest
@@ -35,7 +37,7 @@ public class UserControllerTest {
         Mockito.when(jwtUtils.getUsernameFromJwtToken(Mockito.anyString()))
                 .thenReturn("u");
         Mockito.when(userService.updateUsername(Mockito.anyString(),Mockito.anyString(),Mockito.anyString()))
-                .thenReturn(true);
+                .thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
 
         ResponseEntity<ErrorResponse<Object>> entity = userController.requestEditUsername("u"
                 ,UserResponse.builder().usernameR("u1").emailR("e").build()
@@ -59,7 +61,7 @@ public class UserControllerTest {
         Mockito.when(jwtUtils.getUsernameFromJwtToken(Mockito.anyString()))
                 .thenReturn("u");
         Mockito.when(userService.updatePassword(Mockito.anyString(),Mockito.anyString(),Mockito.anyString()))
-                .thenReturn(true);
+                .thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
 
         ResponseEntity<ErrorResponse<Object>> entity = userController.requestEditPassword("u"
                 ,UserResponse.builder().usernameR("u").passwordR("p2").emailR("e").build()
@@ -84,7 +86,7 @@ public class UserControllerTest {
         Mockito.when(jwtUtils.getUsernameFromJwtToken(Mockito.anyString()))
                 .thenReturn("u");
         Mockito.when(userService.updateEmail(Mockito.anyString(),Mockito.anyString(),Mockito.anyString()))
-                .thenReturn(true);
+                .thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
 
         ResponseEntity<String> entity = userController.requestEditEmail("u"
                 ,"e1","e"
@@ -102,7 +104,7 @@ public class UserControllerTest {
         Mockito.when(jwtUtils.getUsernameFromJwtToken(Mockito.anyString()))
                 .thenReturn("u");
         Mockito.when(userService.deleteUser(Mockito.anyString(),Mockito.anyString(),Mockito.anyString()))
-                .thenReturn(true);
+                .thenReturn(CompletableFuture.supplyAsync(() -> Boolean.TRUE));
         ResponseEntity<String> entity = userController.requestDeleteUser("u","p1","e",Mockito.anyString());
         ResponseEntity<String> expect = new ResponseEntity<>("Successfully removed user u", HttpStatus.OK);
     }

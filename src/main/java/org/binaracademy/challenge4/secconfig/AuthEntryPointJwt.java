@@ -1,4 +1,4 @@
-package org.binaracademy.challenge4.SecConfig;
+package org.binaracademy.challenge4.secconfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package org.binaracademy.challenge4.controller;
 
-import org.binaracademy.challenge4.SecConfig.JwtUtils;
+import org.binaracademy.challenge4.secconfig.JwtUtils;
 import org.binaracademy.challenge4.model.Merchant;
 import org.binaracademy.challenge4.model.response.ErrorResponse;
 import org.binaracademy.challenge4.model.response.MerchantResponse;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 public class MerchantController {
@@ -28,18 +29,22 @@ public class MerchantController {
 
     @PostMapping(value = "/api/binarfud/merchant/add", consumes = "application/json")
     public ResponseEntity<String> requestAddMerchant(@RequestBody MerchantResponse merchant,
-                                                     @RequestHeader(name = "Authorization") String token) {
-        if (merchantService.merchantObjectWithName(merchant.getMerchantName()).getUser().equals(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))) {
-            if (merchantService.addMerchant(Merchant.builder()
-                    .name(merchant.getMerchantName())
-                    .location(merchant.getMerchantAddress())
-                    .status(true)
-                    .user(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))
-                    .build())) {
-                return new ResponseEntity<>("Successfully added merchant", HttpStatus.OK);
-            }
-            else {
-                return new ResponseEntity<>("Failed to add "+merchant+" to database", HttpStatus.NOT_ACCEPTABLE);
+                                                     @RequestHeader(name = "Authorization") String token) throws ExecutionException, InterruptedException {
+        if (merchantService.merchantObjectWithName(merchant.getMerchantName()).get().getUser().equals(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))) {
+            try {
+                if (merchantService.addMerchant(Merchant.builder()
+                        .name(merchant.getMerchantName())
+                        .location(merchant.getMerchantAddress())
+                        .status(true)
+                        .user(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))
+                        .build()).get()) {
+                    return new ResponseEntity<>("Successfully added merchant", HttpStatus.OK);
+                }
+                else {
+                    return new ResponseEntity<>("Failed to add "+merchant+" to database", HttpStatus.NOT_ACCEPTABLE);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
             }
         }
         return new ResponseEntity<>("Failed to add "+merchant+" to database", HttpStatus.NOT_ACCEPTABLE);
@@ -47,9 +52,9 @@ public class MerchantController {
 
     @PutMapping(value = "/api/binarfud/merchant/edit/status/{merchant}")
     public ResponseEntity<ErrorResponse<Objects>> requestEditMerchantStat(@PathVariable("merchant") String merchantName,
-                                          @RequestParam("nStat") boolean newStat, @RequestHeader(name = "Authorization") String token) {
-        if (merchantService.merchantObjectWithName(merchantName).getUser().equals(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))) {
-            if (merchantService.changeMerchantStat(newStat,merchantName)) {
+                                          @RequestParam("nStat") boolean newStat, @RequestHeader(name = "Authorization") String token) throws ExecutionException, InterruptedException {
+        if (merchantService.merchantObjectWithName(merchantName).get().getUser().equals(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))) {
+            if (merchantService.changeMerchantStat(newStat,merchantName).get()) {
                 return new ResponseEntity<>( ErrorResponse.<Objects>builder()
                         .errorMessage("Successfully edited "+merchantName+" status")
                         .errorCode(HttpStatus.OK.value())
@@ -71,8 +76,8 @@ public class MerchantController {
     }
 
     @GetMapping(value = "/api/binarfud/merchant/get-active/{pageNumber}", produces = "application/json")
-    public ResponseEntity requestActiveMerchantList(@PathVariable("pageNumber") int pageNumber) {
-        List<MerchantResponse> activeMerchantOfPage = merchantService.pageOfMerchants(pageNumber);
+    public ResponseEntity requestActiveMerchantList(@PathVariable("pageNumber") int pageNumber) throws ExecutionException, InterruptedException {
+        List<MerchantResponse> activeMerchantOfPage = merchantService.pageOfMerchants(pageNumber).get();
         if (Objects.nonNull(activeMerchantOfPage)) {
             return new ResponseEntity<>(activeMerchantOfPage, HttpStatus.OK);
         }
@@ -83,9 +88,9 @@ public class MerchantController {
     }
 
     @DeleteMapping(value = "/api/binarfud/merchant/delete/{merchantName}")
-    public ResponseEntity requestDeleteMerchant(@PathVariable("merchantName") String mercName, @RequestHeader(name = "Authorization") String token) {
-        if (merchantService.merchantObjectWithName(mercName).getUser().equals(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))) {
-            if (merchantService.deleteMerchant(mercName)) {
+    public ResponseEntity requestDeleteMerchant(@PathVariable("merchantName") String mercName, @RequestHeader(name = "Authorization") String token) throws ExecutionException, InterruptedException {
+        if (merchantService.merchantObjectWithName(mercName).get().getUser().equals(userService.getUserByName(jwtUtils.getUsernameFromJwtToken(token)))) {
+            if (merchantService.deleteMerchant(mercName).get()) {
                 return new ResponseEntity<>("Successfully deleted "+mercName, HttpStatus.OK);
             }
             else return new ResponseEntity<>(ErrorResponse.builder()

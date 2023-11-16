@@ -1,4 +1,4 @@
-package org.binaracademy.challenge4.SecConfig;
+package org.binaracademy.challenge4.secconfig;
 
 import org.binaracademy.challenge4.model.ERole;
 import org.binaracademy.challenge4.service.UserDetailsServiceImpl;

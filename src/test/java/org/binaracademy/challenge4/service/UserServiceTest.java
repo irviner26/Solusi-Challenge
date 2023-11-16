@@ -10,6 +10,9 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserServiceTest {
@@ -28,12 +31,12 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user1").gmail("u1mail").build());
 
-        boolean userExistValidation = userService.userIsExistAndCorrect("user1","u1mail");
+        CompletableFuture<Boolean> userExistValidation = userService.userIsExistAndCorrect("user1","u1mail");
 
         Mockito.verify(userRepository).queryFindUserByName(Mockito.anyString());
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
 
-        Assertions.assertTrue(userExistValidation);
+        Assertions.assertTrue((BooleanSupplier) userExistValidation);
     }
 
     @Test
@@ -44,12 +47,12 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user2").gmail("u1mail").build());
 
-        boolean userExistValidation = userService.userIsExistAndCorrect("user1","u1mail");
+        CompletableFuture<Boolean> userExistValidation = userService.userIsExistAndCorrect("user1","u1mail");
 
         Mockito.verify(userRepository).queryFindUserByName(Mockito.anyString());
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
 
-        Assertions.assertFalse(userExistValidation);
+        Assertions.assertFalse((BooleanSupplier) userExistValidation);
     }
 
     @Test
@@ -59,7 +62,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user1").gmail("u1mail").build());
 
-        boolean userUpdateValidation = userService.updateUsername(
+        CompletableFuture<Boolean> userUpdateValidation = userService.updateUsername(
                 "user1new",
                 "user1",
                 "u1mail");
@@ -68,7 +71,7 @@ public class UserServiceTest {
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
         Mockito.verify(userRepository).queryUpdateUsername(Mockito.anyString(),Mockito.anyString());
 
-        Assertions.assertTrue(userUpdateValidation);
+        Assertions.assertTrue((BooleanSupplier) userUpdateValidation);
     }
 
     @Test
@@ -78,7 +81,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user2").gmail("u1mail").build());
 
-        boolean userUpdateValidation = userService.updateUsername(
+        CompletableFuture<Boolean> userUpdateValidation = userService.updateUsername(
                 "user1new",
                 "user1",
                 "u1mail");
@@ -87,7 +90,7 @@ public class UserServiceTest {
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
         Mockito.verify(userRepository, Mockito.never()).queryUpdateUsername(Mockito.anyString(),Mockito.anyString());
 
-        Assertions.assertFalse(userUpdateValidation);
+        Assertions.assertFalse((BooleanSupplier) userUpdateValidation);
     }
 
     @Test
@@ -97,12 +100,12 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user1").gmail("u1mail").password("old").build());
 
-        boolean userUpdateValidation = userService.updatePassword("new","user1","u1mail");
+        CompletableFuture<Boolean> userUpdateValidation = userService.updatePassword("new","user1","u1mail");
 
         Mockito.verify(userRepository).queryFindUserByName(Mockito.anyString());
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
         Mockito.verify(userRepository).queryUpdatePassword(Mockito.anyString(),Mockito.anyString());
-        Assertions.assertTrue(userUpdateValidation);
+        Assertions.assertTrue((BooleanSupplier) userUpdateValidation);
     }
 
     @Test
@@ -112,7 +115,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user2").gmail("u1mail").password("old").build());
 
-        boolean userUpdateValidation = userService.updatePassword(
+        CompletableFuture<Boolean> userUpdateValidation = userService.updatePassword(
                 "new",
                 "user1",
                 "u1mail");
@@ -121,7 +124,7 @@ public class UserServiceTest {
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
         Mockito.verify(userRepository, Mockito.never()).queryUpdatePassword(Mockito.anyString(),Mockito.anyString());
 
-        Assertions.assertFalse(userUpdateValidation);
+        Assertions.assertFalse((BooleanSupplier) userUpdateValidation);
     }
 
     @Test
@@ -131,13 +134,13 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user1").gmail("u1mail").password("old").build());
 
-        boolean userUpdateValidation = userService.updateEmail
+        CompletableFuture<Boolean> userUpdateValidation = userService.updateEmail
                 ("newmail","user1","u1mail");
 
         Mockito.verify(userRepository).queryFindUserByName(Mockito.anyString());
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
         Mockito.verify(userRepository).queryUpdateEmail(Mockito.anyString(),Mockito.anyString());
-        Assertions.assertTrue(userUpdateValidation);
+        Assertions.assertTrue((BooleanSupplier) userUpdateValidation);
     }
 
     @Test
@@ -147,7 +150,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user2").gmail("u1mail").password("old").build());
 
-        boolean userUpdateValidation = userService.updateEmail(
+        CompletableFuture<Boolean> userUpdateValidation = userService.updateEmail(
                 "u1newmail",
                 "user1",
                 "u1mail");
@@ -156,7 +159,7 @@ public class UserServiceTest {
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
         Mockito.verify(userRepository, Mockito.never()).queryUpdateEmail(Mockito.anyString(),Mockito.anyString());
 
-        Assertions.assertFalse(userUpdateValidation);
+        Assertions.assertFalse((BooleanSupplier) userUpdateValidation);
     }
 
     @Test
@@ -166,12 +169,12 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user1").gmail("u1mail").password("old").build());
 
-        boolean userUpdateValidation = userService.deleteUser("user1","old", "u1mail");
+        CompletableFuture<Boolean> userUpdateValidation = userService.deleteUser("user1","old", "u1mail");
 
         Mockito.verify(userRepository).queryFindUserByName(Mockito.anyString());
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
         Mockito.verify(userRepository).queryDeleteUser(Mockito.anyString(),Mockito.anyString(),Mockito.anyString());
-        Assertions.assertTrue(userUpdateValidation);
+        Assertions.assertTrue((BooleanSupplier) userUpdateValidation);
     }
 
     @Test
@@ -181,12 +184,12 @@ public class UserServiceTest {
         Mockito.when(userRepository.queryFindUserByEmail(Mockito.anyString()))
                 .thenReturn(User.builder().uname("user2").gmail("u1mail").password("old").build());
 
-        boolean userUpdateValidation = userService.deleteUser("user1","old", "u1mail");
+        CompletableFuture<Boolean> userUpdateValidation = userService.deleteUser("user1","old", "u1mail");
 
         Mockito.verify(userRepository).queryFindUserByName(Mockito.anyString());
         Mockito.verify(userRepository).queryFindUserByEmail(Mockito.anyString());
         Mockito.verify(userRepository, Mockito.never()).queryDeleteUser(Mockito.anyString(),Mockito.anyString(),Mockito.anyString());
-        Assertions.assertFalse(userUpdateValidation);
+        Assertions.assertFalse((BooleanSupplier) userUpdateValidation);
     }
 
     @Test

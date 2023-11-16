@@ -15,6 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BooleanSupplier;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,9 +38,9 @@ public class MerchantServiceTest {
                         .name("merch1")
                         .build());
 
-        boolean existance = merchantService.merchantExist("merch1");
+        CompletableFuture<Boolean> existance = merchantService.merchantExist("merch1");
         Mockito.verify(merchantRepository).queryFindMerchantByName(Mockito.anyString());
-        Assertions.assertTrue(existance);
+        Assertions.assertTrue((BooleanSupplier) existance);
     }
 
     @Test
@@ -47,9 +50,9 @@ public class MerchantServiceTest {
                         .name("merch1")
                         .build());
 
-        boolean existance = merchantService.merchantExist("merch2");
+        CompletableFuture<Boolean> existance = merchantService.merchantExist("merch2");
         Mockito.verify(merchantRepository).queryFindMerchantByName(Mockito.anyString());
-        Assertions.assertFalse(existance);
+        Assertions.assertFalse((BooleanSupplier) existance);
     }
 
     @Test
@@ -60,9 +63,9 @@ public class MerchantServiceTest {
                         .location("loc1")
                         .build());
 
-        boolean success = merchantService.addMerchant(Merchant.builder().name("merch1").location("loc1").build());
+        CompletableFuture<Boolean> success = merchantService.addMerchant(Merchant.builder().name("merch1").location("loc1").build());
         Mockito.verify(merchantRepository).save(Mockito.any());
-        Assertions.assertTrue(success);
+        Assertions.assertTrue((BooleanSupplier) success);
     }
 
     @Test
@@ -73,9 +76,9 @@ public class MerchantServiceTest {
                         .location("")
                         .build());
 
-        boolean success = merchantService.addMerchant(Merchant.builder().name("merch1").location("").build());
+        CompletableFuture<Boolean> success = merchantService.addMerchant(Merchant.builder().name("merch1").location("").build());
         Mockito.verify(merchantRepository, Mockito.never()).save(Mockito.any());
-        Assertions.assertFalse(success);
+        Assertions.assertFalse((BooleanSupplier) success);
     }
 
     @Test
@@ -86,10 +89,10 @@ public class MerchantServiceTest {
                         .status(true)
                         .build());
 
-        boolean edited = merchantService.changeMerchantStat(false, "merch1");
+        CompletableFuture<Boolean> edited = merchantService.changeMerchantStat(false, "merch1");
         Mockito.verify(merchantRepository).queryFindMerchantByName(Mockito.anyString());
         Mockito.verify(merchantRepository).queryUpdateMerchantStat(Mockito.anyBoolean(), Mockito.anyString());
-        Assertions.assertTrue(edited);
+        Assertions.assertTrue((BooleanSupplier) edited);
     }
 
     @Test
@@ -100,10 +103,10 @@ public class MerchantServiceTest {
                         .status(true)
                         .build());
 
-        boolean edited = merchantService.changeMerchantStat(false, "merch2");
+        CompletableFuture<Boolean> edited = merchantService.changeMerchantStat(false, "merch2");
         Mockito.verify(merchantRepository).queryFindMerchantByName(Mockito.anyString());
         Mockito.verify(merchantRepository, Mockito.never()).queryUpdateMerchantStat(Mockito.anyBoolean(), Mockito.anyString());
-        Assertions.assertFalse(edited);
+        Assertions.assertFalse((BooleanSupplier) edited);
     }
 
     @Test
@@ -132,11 +135,11 @@ public class MerchantServiceTest {
                                 .build()
                 ));
 
-        boolean deleted = merchantService.deleteMerchant("merch1");
+        CompletableFuture<Boolean> deleted = merchantService.deleteMerchant("merch1");
         Mockito.verify(merchantRepository).queryDeleteByName("merch1");
         Mockito.verify(productRepository).queryListOfProdFromMerch("merch1");
         Mockito.verify(merchantRepository).queryDeleteByName("merch1");
-        Assertions.assertTrue(deleted);
+        Assertions.assertTrue((BooleanSupplier) deleted);
     }
 
     @Test
@@ -165,11 +168,11 @@ public class MerchantServiceTest {
                                 .build()
                 ));
 
-        boolean deleted = merchantService.deleteMerchant("merch1");
+        CompletableFuture<Boolean> deleted = merchantService.deleteMerchant("merch1");
         Mockito.verify(merchantRepository).queryFindMerchantByName("merch1");
         Mockito.verify(productRepository, Mockito.never()).queryListOfProdFromMerch("merch1");
         Mockito.verify(merchantRepository, Mockito.never()).queryDeleteByName("merch1");
-        Assertions.assertFalse(deleted);
+        Assertions.assertFalse((BooleanSupplier) deleted);
     }
 
     @Test
@@ -180,7 +183,12 @@ public class MerchantServiceTest {
                         .location("loc1")
                         .build());
 
-        MerchantResponse returnedResponse = merchantService.merchantOfName("merch1");
+        MerchantResponse returnedResponse = null;
+        try {
+            returnedResponse = merchantService.merchantOfName("merch1").get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
         MerchantResponse expectedResponse = MerchantResponse.builder()
                 .merchantName("merch1").merchantAddress("loc1").build();
         Assertions.assertEquals(expectedResponse, returnedResponse);
@@ -200,7 +208,12 @@ public class MerchantServiceTest {
                                 .build()
                 ));
 
-        List<MerchantResponse> returnedResponse = merchantService.listOfMerchants();
+        List<MerchantResponse> returnedResponse = null;
+        try {
+            returnedResponse = merchantService.listOfMerchants().get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
         List<MerchantResponse> expectedResponse = Arrays.asList(MerchantResponse.builder()
                 .merchantName("merch1").merchantAddress("loc1").build(),
                 MerchantResponse.builder()
