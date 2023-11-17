@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -43,6 +44,13 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query(nativeQuery = true, value = "select * from userdb u where u.gmail = :email")
     User queryFindUserByEmail(@Param("email") String email);
+
+    //Queries for roles
+    @Query(nativeQuery = true, value = "select * from userdb u join user_roles r on u.id = r.user_id where r.role_id = 1")
+    List<User> userRegular();
+
+    @Query(nativeQuery = true, value = "select * from userdb u join user_roles r on u.id = r.user_id where r.role_id = 2")
+    List<User> userMerchant();
 
 
     // Queries for Spring Security:
